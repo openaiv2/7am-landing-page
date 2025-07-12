@@ -1,0 +1,128 @@
+@import "../../styles";
+
+@mixin boxContainerStatus($color) {
+  background-color: $color;
+}
+
+@mixin iconContainerStatus($color) {
+  color: $color;
+}
+
+.flashMessage {
+  display: flex;
+  padding: 20px;
+  border-radius: 8px;
+  gap: 12px;
+  box-shadow: 0 2px 12px #0000000f;
+
+  &--success {
+    @include boxContainerStatus($success);
+  }
+
+  &--warning {
+    @include boxContainerStatus($warning);
+  }
+
+  &--error {
+    @include boxContainerStatus($error);
+  }
+
+  &--info {
+    @include boxContainerStatus($primary);
+  }
+
+  &--brand {
+    @include boxContainerStatus($primary);
+  }
+
+  &--neutral-01 {
+    @include boxContainerStatus($neutral-01);
+  }
+
+  &__noShadow {
+    box-shadow: none !important;
+  }
+
+  &__noBackground {
+    box-shadow: none !important;
+  }
+
+  &__iconContainer {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    position: relative;
+    background: $neutral-08;
+
+    &--success {
+      @include iconContainerStatus($success);
+    }
+
+    &--warning {
+      @include iconContainerStatus($warning);
+    }
+
+    &--error {
+      @include iconContainerStatus($error);
+    }
+
+    &--info {
+      @include iconContainerStatus($primary);
+    }
+
+    &--brand {
+      @include iconContainerStatus($primary);
+    }
+
+    &--neutral-01 {
+      @include iconContainerStatus($neutral-01);
+    }
+
+    svg {
+      position: relative;
+      z-index: 2;
+    }
+  }
+
+  &__messageContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  &__message {
+    font-size: 16px;
+    font-weight: 600;
+    color: $neutral-08;
+    letter-spacing: -0.32px;
+    line-height: 20px;
+    opacity: 1;
+    display: block;
+  }
+
+  &__description {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.14px;
+    color: $neutral-08;
+    display: block;
+    margin-top: 12px;
+  }
+
+  &__closeIcon {
+    align-self: start;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: $neutral-08;
+    padding: 0;
+    opacity: 0.6;
+  }
+}

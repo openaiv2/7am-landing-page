@@ -1,0 +1,10 @@
+@import "./_colors";
+// Animations
+$easing: ease-out;
+$delay: 0.3s;
+
+// Borders
+$border-radius: 12px;
+$border-solid: 2px solid;
+$border-color: $neutral-06;
+$border: $border-solid $border-color;

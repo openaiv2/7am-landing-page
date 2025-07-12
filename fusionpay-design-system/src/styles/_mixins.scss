@@ -1,0 +1,17 @@
+@import "./variables";
+
+// Transitions
+@mixin transition($type) {
+  transition: $type $delay $easing;
+}
+
+// Button
+@mixin outlined-box($color) {
+  border-color: $color;
+  color: $color;
+}
+
+// Border
+@mixin border($color) {
+  border: $border-solid $color;
+}

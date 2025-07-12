@@ -1,0 +1,50 @@
+## Create Theme
+
+```tsx
+import {createTheme} from "@fusionpay/design-system";
+
+createTheme(mode: 'light' | 'dark', customTheme:{})
+// defaults createTheme('light', {})
+```
+
+## Usage
+
+```tsx
+import { ThemeProvider } from "styled-components";
+import { Theme, createTheme } from "@fusionpay/design-system";
+
+const theme: Theme = createTheme("light", {});
+
+export default function App(props) {
+  return <ThemeProvider theme={theme}>{props.children}</ThemeProvider>;
+}
+```
+
+### Theme Resolution
+
+```tsx
+// any-theme-file-name.ts
+import "styled-components";
+
+declare module "styled-components" {
+  export interface DefaultTheme extends Theme {
+    spacing: {
+      "desktop-large": number;
+    };
+  }
+}
+
+// App.tsx
+import { Theme, createTheme } from "@fusionpay/design-system";
+import styled from "styled-components";
+
+const theme: Theme = createTheme("light", {
+  spacing: {
+    "desktop-large": 10,
+  },
+});
+
+const Box = styled.div`
+  margin: ${(props) => props.theme.spacing["desktop-large"]};
+`;
+```

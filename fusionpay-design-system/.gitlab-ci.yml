@@ -1,0 +1,110 @@
+default:
+  image: node:20
+  before_script:
+    - |
+      {
+        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/"
+        echo "${CI_API_V4_URL#https?}/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=\${CI_JOB_TOKEN}"
+
+        echo "@fortawesome:registry=https://gitlab.com/api/v4/projects/50529415/packages/npm/"
+        echo "//gitlab.com/api/v4/projects/50529415/packages/npm/:_authToken=${CI_GITLAB_AUTH}"
+      } | tee -a .npmrc
+    - yarn --frozen-lockfile
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .npm/
+
+storybook:
+  stage: test
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_CPU_LIMIT: "2"
+    KUBERNETES_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_MEMORY_LIMIT: "4Gi"
+  artifacts:
+    expire_in: 2 weeks
+    when: always
+    paths:
+      - storybook/
+  script:
+    - yarn build-storybook --output-dir storybook
+
+pages:
+  stage: pages
+  cache:
+    key: "my-storybook"
+    paths:
+      - public
+  needs:
+    - storybook
+  script:
+    - if [ "$CI_COMMIT_REF_NAME" = "main" ] || [ "$CI_COMMIT_REF_NAME" = "beta" ]; then
+      mkdir -p public;
+      touch public/index.html;
+      echo "<!DOCTYPE HTML><script>window.location.href = 'https://react-component-library-fusionpay-a58bd801d530ecb4b5f402aa55ffb.gitlab.io/$CI_COMMIT_REF_SLUG/storybook'</script>" > public/index.html;
+      fi;
+    - rm -rf "public/$CI_COMMIT_REF_SLUG"
+    - mkdir -p "public/$CI_COMMIT_REF_SLUG";
+    - mv storybook "public/$CI_COMMIT_REF_SLUG"
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+    - beta
+
+deploy-storybook:
+  stage: deployment
+  script:
+    - echo "Enjoy the day. 🥳 Every job needs a script, but this job was just created to configure an environment."
+  environment:
+    name: storybook/$CI_COMMIT_REF_SLUG
+    url: https://react-component-library-fusionpay-a58bd801d530ecb4b5f402aa55ffb.gitlab.io/$CI_COMMIT_REF_SLUG/storybook/
+    on_stop: remove-storybook
+  only:
+    - main
+    - beta
+
+remove-storybook:
+  stage: deployment
+  cache:
+    key: "my-storybook"
+    paths:
+      - public
+  script:
+    - rm -rf "public/$CI_COMMIT_REF_SLUG/storybook"
+  when: manual
+  variables:
+    GIT_STRATEGY: none # needed to prevent "Couldn't find remote ref" error
+  environment:
+    name: storybook/$CI_COMMIT_REF_SLUG
+    action: stop
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+variables:
+  NPM_TOKEN: ${CI_JOB_TOKEN}
+
+stages:
+  - test
+  - release
+  - pages
+  - deployment
+
+test:
+  stage: test
+  script:
+    - yarn build
+    - yarn test
+
+publish:
+  stage: release
+  script:
+    - yarn build
+    - yarn semantic-release
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == "beta"
