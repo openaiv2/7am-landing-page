@@ -68,3 +68,4 @@ fusionpay-design-system.tar.gz
 
 # Vite
 .vite/ 
+node_modules
